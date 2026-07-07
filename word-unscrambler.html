@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Word Unscrambler Pro++</title>
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-5: 1.25rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-10: 2.5rem;
+      --space-12: 3rem;
+      --radius-sm: 0.375rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      --radius-full: 9999px;
+      --color-bg: #f7f6f2;
+      --color-surface: #f9f8f5;
+      --color-surface-2: #fbfbf9;
+      --color-surface-offset: #edeae5;
+      --color-border: #d4d1ca;
+      --color-text: #28251d;
+      --color-text-muted: #6f6c65;
+      --color-text-faint: #a39f97;
+      --color-primary: #01696f;
+      --color-primary-hover: #0c4e54;
+      --color-primary-highlight: #cedcd8;
+      --color-success: #437a22;
+      --color-warning: #964219;
+      --shadow-sm: 0 1px 2px rgba(25, 24, 20, 0.06);
+      --shadow-md: 0 8px 24px rgba(25, 24, 20, 0.08);
+      --shadow-lg: 0 18px 40px rgba(25, 24, 20, 0.12);
+      --transition: 180ms cubic-bezier(0.16, 1, 0.3, 1);
+      --font-body: 'Satoshi', Inter, sans-serif;
+      --font-display: 'Satoshi', Inter, sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --color-bg: #171614;
+      --color-surface: #1c1b19;
+      --color-surface-2: #201f1d;
+      --color-surface-offset: #2a2825;
+      --color-border: #393836;
+      --color-text: #e4e0d8;
+      --color-text-muted: #b2ada4;
+      --color-text-faint: #807a72;
+      --color-primary: #4f98a3;
+      --color-primary-hover: #6caab3;
+      --color-primary-highlight: #263436;
+      --color-success: #86ba62;
+      --color-warning: #d99266;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.24);
+      --shadow-md: 0 8px 24px rgba(0,0,0,0.28);
+      --shadow-lg: 0 18px 40px rgba(0,0,0,0.4);
+    }
+
+    *,:before,:after{box-sizing:border-box;margin:0;padding:0}
+    html{-webkit-text-size-adjust:none;text-size-adjust:none;scroll-behavior:smooth}
+    body{
+      min-height:100dvh;
+      font-family:var(--font-body);
+      font-size:var(--text-base);
+      color:var(--color-text);
+      background:
+        radial-gradient(circle at top left, color-mix(in oklab, var(--color-primary) 12%, transparent), transparent 30%),
+        radial-gradient(circle at bottom right, color-mix(in oklab, var(--color-primary) 7%, transparent), transparent 28%),
+        var(--color-bg);
+      line-height:1.6;
+    }
+    img,svg{display:block;max-width:100%}
+    button,input,textarea{font:inherit;color:inherit}
+    button{cursor:pointer;border:none}
+    a,button,input,textarea{transition:background var(--transition), color var(--transition), border-color var(--transition), box-shadow var(--transition), transform var(--transition)}
+    :focus-visible{outline:2px solid var(--color-primary);outline-offset:3px;border-radius:var(--radius-sm)}
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+    .app {
+      width:min(100%, 1100px);
+      margin-inline:auto;
+      padding:var(--space-4);
+      padding-block:clamp(var(--space-4), 4vw, var(--space-10));
+    }
+
+    .shell {
+      background:color-mix(in oklab, var(--color-surface) 88%, white 12%);
+      border:1px solid color-mix(in oklab, var(--color-text) 10%, transparent);
+      border-radius:calc(var(--radius-xl) + var(--space-1));
+      box-shadow:var(--shadow-lg);
+      overflow:hidden;
+      backdrop-filter:blur(10px);
+    }
+
+    .topbar {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:var(--space-4);
+      padding:var(--space-4) var(--space-4);
+      border-bottom:1px solid color-mix(in oklab, var(--color-text) 10%, transparent);
+      background:color-mix(in oklab, var(--color-surface-2) 84%, transparent);
+    }
+
+    .brand {
+      display:flex;
+      align-items:center;
+      gap:var(--space-3);
+      min-width:0;
+    }
+
+    .logo {
+      width:42px;
+      height:42px;
+      border-radius:var(--radius-lg);
+      display:grid;
+      place-items:center;
+      background:linear-gradient(135deg, var(--color-primary), color-mix(in oklab, var(--color-primary) 70%, black 12%));
+      color:#fff;
+      box-shadow:var(--shadow-sm);
+      flex:none;
+    }
+
+    .brand h1 {
+      font-size:var(--text-lg);
+      line-height:1.1;
+      font-weight:700;
+      letter-spacing:-0.02em;
+    }
+
+    .brand p {
+      color:var(--color-text-muted);
+      font-size:var(--text-sm);
+      max-width:42ch;
+    }
+
+    .theme-toggle {
+      width:44px;
+      height:44px;
+      display:grid;
+      place-items:center;
+      border-radius:var(--radius-full);
+      background:var(--color-surface-offset);
+      border:1px solid color-mix(in oklab, var(--color-text) 10%, transparent);
+      color:var(--color-text);
+      flex:none;
+    }
+
+    .layout {
+      display:grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap:0;
+    }
+
+    .panel {
+      padding:clamp(var(--space-4), 3vw, var(--space-8));
+    }
+
+    .panel + .panel {
+      border-left:1px solid color-mix(in oklab, var(--color-text) 10%, transparent);
+      background:color-mix(in oklab, var(--color-surface-2) 84%, transparent);
+    }
+
+    .eyebrow {
+      display:inline-flex;
+      align-items:center;
+      gap:var(--space-2);
+      font-size:var(--text-xs);
+      font-weight:700;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      color:var(--color-primary);
+      background:var(--color-primary-highlight);
+      padding:var(--space-2) var(--space-3);
+      border-radius:var(--radius-full);
+      margin-bottom:var(--space-4);
+    }
+
+    .hero-title {
+      font-size:var(--text-xl);
+      line-height:1.05;
+      letter-spacing:-0.03em;
+      margin-bottom:var(--space-3);
+    }
+
+    .hero-copy {
+      color:var(--color-text-muted);
+      max-width:54ch;
+      margin-bottom:var(--space-6);
+    }
+
+    .form-grid {
+      display:grid;
+      gap:var(--space-4);
+      margin-bottom:var(--space-6);
+    }
+
+    .field label,
+    .toolbar-label {
+      display:block;
+      font-size:var(--text-sm);
+      font-weight:600;
+      margin-bottom:var(--space-2);
+    }
+
+    .field textarea {
+      width:100%;
+      min-height:170px;
+      resize:vertical;
+      border-radius:var(--radius-lg);
+      border:1px solid color-mix(in oklab, var(--color-text) 14%, transparent);
+      background:var(--color-surface-2);
+      padding:var(--space-4);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+
+    .hint-row {
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      gap:var(--space-3);
+      color:var(--color-text-muted);
+      font-size:var(--text-sm);
+      margin-top:var(--space-2);
+    }
+
+    .actions {
+      display:flex;
+      flex-wrap:wrap;
+      gap:var(--space-3);
+    }
+
+    .btn {
+      min-height:48px;
+      padding:0 var(--space-5);
+      border-radius:var(--radius-full);
+      font-size:var(--text-sm);
+      font-weight:700;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:var(--space-2);
+    }
+
+    .btn-primary {
+      background:var(--color-primary);
+      color:#fff;
+      box-shadow:var(--shadow-md);
+    }
+
+    .btn-primary:hover,.btn-primary:focus-visible {background:var(--color-primary-hover);transform:translateY(-1px)}
+    .btn-secondary {
+      background:var(--color-surface-offset);
+      color:var(--color-text);
+      border:1px solid color-mix(in oklab, var(--color-text) 12%, transparent);
+    }
+
+    .stats {
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:var(--space-3);
+      margin-top:var(--space-6);
+    }
+
+    .stat {
+      background:var(--color-surface-2);
+      border:1px solid color-mix(in oklab, var(--color-text) 8%, transparent);
+      border-radius:var(--radius-lg);
+      padding:var(--space-4);
+    }
+
+    .stat small {
+      display:block;
+      color:var(--color-text-muted);
+      font-size:var(--text-xs);
+      margin-bottom:var(--space-2);
+      text-transform:uppercase;
+      letter-spacing:0.08em;
+      font-weight:700;
+    }
+
+    .stat strong {
+      font-size:var(--text-lg);
+      line-height:1;
+      font-variant-numeric:tabular-nums lining-nums;
+    }
+
+    .results-head {
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:var(--space-4);
+      margin-bottom:var(--space-4);
+    }
+
+    .results-head p {
+      color:var(--color-text-muted);
+      font-size:var(--text-sm);
+      max-width:36ch;
+    }
+
+    .status {
+      display:flex;
+      align-items:center;
+      gap:var(--space-2);
+      color:var(--color-text-muted);
+      font-size:var(--text-sm);
+      margin-bottom:var(--space-4);
+      min-height:24px;
+    }
+
+    .status-dot {
+      width:10px;
+      height:10px;
+      border-radius:var(--radius-full);
+      background:var(--color-warning);
+      box-shadow:0 0 0 6px color-mix(in oklab, var(--color-warning) 16%, transparent);
+      flex:none;
+    }
+
+    .status.ready .status-dot { background:var(--color-success); box-shadow:0 0 0 6px color-mix(in oklab, var(--color-success) 18%, transparent); }
+
+    .results-box {
+      min-height:320px;
+      border-radius:var(--radius-xl);
+      border:1px solid color-mix(in oklab, var(--color-text) 10%, transparent);
+      background:linear-gradient(180deg, color-mix(in oklab, var(--color-surface-2) 86%, transparent), var(--color-surface));
+      padding:var(--space-4);
+      display:flex;
+      flex-direction:column;
+      gap:var(--space-4);
+    }
+
+    .empty-state {
+      margin:auto;
+      text-align:center;
+      max-width:34ch;
+      color:var(--color-text-muted);
+    }
+
+    .empty-state svg { margin:0 auto var(--space-4); color:var(--color-text-faint); }
+
+    .word-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
+      gap:var(--space-3);
+      content-visibility:auto;
+    }
+
+    .word-chip {
+      border-radius:var(--radius-lg);
+      padding:var(--space-3) var(--space-4);
+      border:1px solid color-mix(in oklab, var(--color-text) 10%, transparent);
+      background:var(--color-surface-2);
+      font-weight:600;
+      letter-spacing:0.01em;
+      text-align:center;
+      word-break:break-word;
+    }
+
+    .meta-line {
+      display:flex;
+      flex-wrap:wrap;
+      gap:var(--space-2);
+      align-items:center;
+      font-size:var(--text-xs);
+      color:var(--color-text-muted);
+    }
+
+    .pill {
+      padding:var(--space-2) var(--space-3);
+      border-radius:var(--radius-full);
+      background:var(--color-surface-offset);
+      border:1px solid color-mix(in oklab, var(--color-text) 10%, transparent);
+      font-weight:700;
+    }
+
+    .tips {
+      margin-top:var(--space-5);
+      display:grid;
+      gap:var(--space-3);
+    }
+
+    .tips article {
+      border-radius:var(--radius-lg);
+      padding:var(--space-4);
+      background:var(--color-surface-2);
+      border:1px solid color-mix(in oklab, var(--color-text) 8%, transparent);
+    }
+
+    .tips h3 {
+      font-size:var(--text-sm);
+      margin-bottom:var(--space-2);
+    }
+
+    .tips p {
+      font-size:var(--text-sm);
+      color:var(--color-text-muted);
+    }
+
+    .flash {
+      animation:fadeUp 360ms cubic-bezier(0.16,1,0.3,1);
+    }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(8px); }
+      to { opacity:1; transform:translateY(0); }
+    }
+
+    @media (max-width: 860px) {
+      .layout { grid-template-columns:1fr; }
+      .panel + .panel { border-left:none; border-top:1px solid color-mix(in oklab, var(--color-text) 10%, transparent); }
+      .stats { grid-template-columns:1fr; }
+    }
+
+    @media (max-width: 560px) {
+      .topbar { align-items:flex-start; }
+      .brand { align-items:flex-start; }
+      .brand p { max-width:26ch; }
+      .hero-title { font-size:clamp(1.35rem, 1.05rem + 1vw, 1.8rem); }
+      .actions { flex-direction:column; }
+      .btn { width:100%; }
+      .results-head { flex-direction:column; }
+      .word-grid { grid-template-columns:repeat(2, minmax(0,1fr)); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important;scroll-behavior:auto!important}
+    }
+  </style>
+</head>
+<body>
+  <a class="sr-only" href="#main">Skip to content</a>
+  <div class="app">
+    <div class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="logo" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 7.5h8.5L8.8 11 13 15.3 6.5 21" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M20 3 9.5 13.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div>
+            <h1>Word Unscrambler</h1>
+            <p>Paste a group of letters, apply smart filters, and review every valid match in a clean mobile-friendly layout. Now with wildcard, score, length, export tools, and multi-word solving.</p>
+          </div>
+        </div>
+        <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark mode">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </header>
+
+      <main class="layout" id="main">
+        <section class="panel" aria-labelledby="input-title">
+          <div class="eyebrow">Simple · Fast · Modern</div>
+          <h2 class="hero-title" id="input-title">Turn mixed letters into real words.</h2>
+          <p class="hero-copy">Type or paste letters without spaces, then generate every dictionary word that can be built from those letters. Great for word games, puzzles, and quick checks.</p>
+
+          <form class="form-grid" id="unscramble-form">
+            <div class="field">
+              <label for="letters">Letters</label>
+              <textarea id="letters" name="letters" placeholder="Example: stream or aelpp" autocomplete="off" spellcheck="false"></textarea>
+              <div class="hint-row">
+                <span>Use only letters. Spaces and symbols are ignored.</span>
+                <span><strong id="char-count">0</strong> letters detected</span>
+              </div>
+              <div class="field" style="margin-top:0.25rem;">
+                <label for="pattern">Pattern / filter</label>
+                <input id="pattern" name="pattern" type="text" placeholder="Example: a..e, start:st, end:ing, contains:ar" autocomplete="off" spellcheck="false" style="width:100%;min-height:48px;border-radius:var(--radius-lg);border:1px solid color-mix(in oklab, var(--color-text) 14%, transparent);background:var(--color-surface-2);padding:0 var(--space-4);" />
+                <div class="hint-row">
+                  <span>Use <strong>?</strong> as a wildcard, or commands: start: end: contains: not:</span>
+                  <span>Filter is optional</span>
+                </div>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="btn btn-primary" type="submit">Unscramble</button>
+              <button class="btn btn-secondary" type="button" id="clear-btn">Clear</button>
+              <button class="btn btn-secondary" type="button" id="sample-btn">Try sample</button>
+              <button class="btn btn-secondary" type="button" id="copy-btn">Copy results</button>
+              <button class="btn btn-secondary" type="button" id="export-btn">Export CSV</button>
+            </div>
+          </form>
+
+          <div class="stats" aria-label="Live summary">
+            <div class="stat">
+              <small>Letters</small>
+              <strong id="letters-stat">0</strong>
+            </div>
+            <div class="stat">
+              <small>Results</small>
+              <strong id="results-stat">0</strong>
+            </div>
+            <div class="stat">
+              <small>Longest word</small>
+              <strong id="longest-stat">—</strong>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" aria-labelledby="results-title">
+          <div class="results-head">
+            <div>
+              <h2 id="results-title" style="font-size:var(--text-lg); margin-bottom:var(--space-2);">Possible words</h2>
+              <p>Results are sorted by length first, then alphabetically, so the strongest matches appear at the top.</p>
+            </div>
+          </div>
+
+          <div class="status" id="status" aria-live="polite">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span>Waiting for letters.</span>
+          </div>
+
+          <div class="results-box">
+            <div class="meta-line" id="meta-line" hidden>
+              <span class="pill" id="total-pill">0 words</span>
+              <span class="pill" id="length-pill">0 unique lengths</span>
+              <span class="pill" id="score-pill">0 top score</span>
+              <span class="pill" id="mode-pill">all words</span>
+              <span class="pill" id="combo-pill">single words</span>
+            </div>
+            <div id="results-content" class="flash">
+              <div class="empty-state">
+                <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                  <path d="M4 7h16M7 4h10M6 10l2 10h8l2-10M10 10v6M14 10v6"></path>
+                </svg>
+                <p>Enter a group of letters and press <strong>Unscramble</strong> to see every valid match.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="tips" aria-label="Helper notes">
+            <article>
+              <h3>How matching works</h3>
+              <p>Each result must be buildable from your available letters, including repeated letters only when you provide them.</p>
+            </article>
+            <article>
+              <h3>Best input style</h3>
+              <p>Short sets like 5 to 8 letters are fastest, but the app can still handle longer sets for experimentation.</p>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const DICTIONARY = [
+      'a','able','ace','acid','acre','act','action','actor','add','adore','after','age','agent','air','alert','align','all','alone','also','alter','am','amber','amen','amid','angle','ant','any','apple','apt','arc','are','arena','arm','aroma','arrow','art','ash','ask','atom',
+      'bake','baker','ball','ballet','band','bank','bar','bare','bark','base','basic','bat','batch','bath','be','beach','beam','bean','bear','beat','beauty','bed','bee','been','beer','bell','belt','bend','berry','best','beta','bid','big','bike','bind','bird','birth','bit','black','blade','blank','blast','blend','bless','block','blue','board','boat','body','bold','bone','book','boost','boot','border','both','bottle','box','brain','brake','brand','brave','bread','break','breeze','brick','bridge','bright','bring','broad','brook','brown','brush','build','burst','busy','but','byte',
+      'cable','cake','calm','came','can','cane','cape','car','card','care','cargo','case','cash','cast','cat','catch','cater','cause','cell','chain','chair','chalk','chance','change','chart','chase','cheap','check','cheer','chess','chest','chief','child','choice','choose','chord','city','claim','class','clean','clear','clerk','click','cliff','climb','clock','close','cloud','coach','coast','code','coin','cold','color','come','comet','common','cook','cool','copper','copy','core','corn','cost','could','count','court','cover','crack','craft','crane','crash','cream','create','credit','creek','crew','cross','crowd','crown','crude','cruel','crush','cube','cure','curve','cycle',
+      'daily','dance','dare','dark','dash','data','date','dawn','day','deal','dear','debit','deck','deep','deer','delay','delta','dense','desk','detail','dial','dice','dime','dinner','direct','dirt','disc','dish','display','dive','do','dock','doctor','dog','dollar','door','doubt','draft','dragon','drain','drama','draw','dream','dress','drift','drink','drive','drop','drum','dry','duck','duel','dust','duty',
+      'each','eager','eagle','ear','early','earn','earth','ease','east','easy','eat','edge','edit','effect','effort','egg','eight','either','elastic','elder','elect','else','ember','emit','end','engine','enjoy','enter','entry','equal','error','escape','essay','estate','ethic','even','event','ever','every','exact','exam','excel','exit','extra','eye',
+      'face','fact','fade','fair','faith','fall','false','fame','far','farm','fast','fate','fault','fear','feature','feed','feel','field','fierce','file','fill','film','filter','final','find','fine','finger','finish','fire','firm','first','fish','fit','five','flag','flame','flash','flat','fleet','flesh','flight','flip','float','floor','flow','flower','fly','focus','fold','food','foot','for','force','forest','forge','form','frame','fresh','friend','from','front','fruit','fuel','full','fund','funny','future',
+      'game','gamma','garden','gate','gather','gear','gem','gene','giant','gift','girl','give','glad','glass','glide','globe','glow','go','goal','goat','gold','good','grace','grade','grain','grand','grant','grape','graph','grasp','grass','great','green','grid','grind','group','grow','guard','guess','guest','guide','gulf','gum',
+      'habit','hair','half','hall','hand','handle','happy','harbor','hard','harm','has','hate','have','hazel','head','health','heart','heat','heavy','help','hen','her','hero','hidden','high','hill','hint','hire','hold','home','honest','honey','honor','hook','hope','horse','host','hotel','hour','house','hover','human','humble','hunt','hurry',
+      'ice','idea','ideal','image','impact','import','index','inner','input','inside','iron','island','issue','item',
+      'jazz','job','join','joke','judge','juice','jump','jury','just',
+      'keep','kettle','key','kind','king','kitchen','kite','knee','knife','knock','known',
+      'label','labor','lace','ladder','lake','lamp','land','lane','large','laser','last','late','later','laugh','layer','lead','leaf','learn','least','leave','ledge','left','legal','lemon','length','lens','less','letter','level','lever','light','limit','line','linear','link','lion','list','listen','little','live','load','loan','local','lock','logic','long','look','loop','loose','lord','loss','loud','love','lower','lucky','lunch','lunar',
+      'machine','macro','magic','mail','main','major','make','maker','male','mango','many','map','march','mark','market','mask','mass','master','match','material','math','matter','may','meal','mean','measure','meat','media','meet','melt','member','memory','merge','merit','mesh','metal','meter','method','middle','might','mile','milk','mind','mine','minor','mint','mirror','miss','mix','mobile','model','modern','modify','moment','money','month','mood','moon','more','moral','most','mother','motion','motor','mount','mouse','mouth','move','movie','much','music','must','mystic',
+      'name','narrow','nation','native','nature','near','neat','neck','need','needle','nerve','nest','net','never','new','next','nice','night','noble','noise','north','note','novel','nurse',
+      'oak','object','ocean','offer','often','oil','older','olive','omega','once','only','open','opera','orbit','order','organ','other','outer','output','oval','oven','over','owner','oxide',
+      'pack','page','paint','panel','paper','park','part','party','paste','path','pattern','pause','peace','peak','pearl','pen','pencil','people','pepper','perfect','phase','phone','photo','phrase','piece','pilot','pink','pipe','pitch','place','plain','plan','plane','planet','plant','plate','play','plea','please','plot','plug','plus','point','polar','pond','pool','poor','port','pose','power','press','price','prime','print','prize','probe','process','proof','proper','proud','pulse','pure','push','puzzle',
+      'quick','quiet','quite','quote',
+      'race','radio','rail','rain','raise','range','rapid','rate','reach','react','read','ready','real','reason','record','red','refer','reform','region','relax','rely','remain','render','renew','reply','report','rest','result','return','review','reward','rhythm','rice','rich','ride','right','ring','rise','river','road','roast','robot','rock','role','room','root','rope','rose','round','route','royal','rule','rural',
+      'safe','sail','salt','same','sample','sand','scale','scan','scene','school','scope','score','screen','seal','search','season','seat','second','secret','section','seed','seek','seem','select','sense','serve','set','settle','shade','shake','shape','share','sharp','sheet','shelf','shell','shift','shine','ship','shirt','shock','shoe','shore','short','show','side','sight','signal','silent','silver','simple','since','sing','site','size','skill','skin','sky','sleep','slice','slide','slight','slow','small','smart','smile','smoke','smooth','snake','snow','so','social','soft','solar','solid','solve','some','song','soon','sort','sound','source','south','space','spark','speak','speed','spell','spice','spider','spike','spin','spirit','split','sport','spot','spring','square','stable','stack','stage','stamp','stand','star','start','state','steam','steel','step','stick','still','stock','stone','storm','story','stove','stream','street','strike','string','strong','study','style','submit','sugar','suite','summer','sun','super','supply','sure','surface','swear','sweet','swell','swift','swim','swing','switch','symbol','system',
+      'table','tail','take','talent','talk','tall','task','taste','teach','team','tech','tell','temp','temple','tend','term','test','text','thank','theme','there','thick','thing','think','third','those','thread','three','thrive','throw','thumb','ticket','tide','time','title','today','token','tone','tool','topic','total','touch','tower','trace','track','trade','trail','train','treat','tree','trend','trial','tribe','trick','trip','trust','truth','tune','turn','twelve','twice','twist','type',
+      'ultra','under','unit','until','upper','urban','use','usual','utility',
+      'valid','value','vapor','vast','vector','very','view','village','violet','vital','voice','void','volume','vote',
+      'wait','wake','walk','wall','want','warm','wash','watch','water','wave','way','wealth','wear','weather','web','week','weight','well','west','what','wheel','where','which','while','white','whole','wide','width','wild','will','wind','window','wine','wing','winner','winter','wire','wise','wish','with','within','woman','wonder','wood','word','work','world','worth','would','write','writer',
+      'year','yellow','yield','young','youth',
+      'zebra','zero','zest','zinc','zone'
+    ];
+
+    const form = document.getElementById('unscramble-form');
+    const textarea = document.getElementById('letters');
+    const clearBtn = document.getElementById('clear-btn');
+    const sampleBtn = document.getElementById('sample-btn');
+    const charCount = document.getElementById('char-count');
+    const lettersStat = document.getElementById('letters-stat');
+    const resultsStat = document.getElementById('results-stat');
+    const longestStat = document.getElementById('longest-stat');
+    const status = document.getElementById('status');
+    const resultsContent = document.getElementById('results-content');
+    const metaLine = document.getElementById('meta-line');
+    const totalPill = document.getElementById('total-pill');
+    const lengthPill = document.getElementById('length-pill');
+    const themeToggle = document.querySelector('[data-theme-toggle]');
+    const root = document.documentElement;
+
+    const patternInput = document.getElementById('pattern');
+    const copyBtn = document.getElementById('copy-btn');
+    const exportBtn = document.getElementById('export-btn');
+    const scorePill = document.getElementById('score-pill');
+    const modePill = document.getElementById('mode-pill');
+    const comboPill = document.getElementById('combo-pill');
+
+    const frequencyMap = word => {
+      const map = Object.create(null);
+      for (const ch of word) map[ch] = (map[ch] || 0) + 1;
+      return map;
+    };
+
+    const preparedDictionary = DICTIONARY
+      .map(word => ({ word, freq: frequencyMap(word) }))
+      .sort((a, b) => b.word.length - a.word.length || a.word.localeCompare(b.word));
+
+    function sanitizeLetters(value) {
+      return (value || '').toLowerCase().replace(/[^a-z]/g, '');
+    }
+
+    function canBuild(wordFreq, lettersFreq) {
+      for (const letter in wordFreq) {
+        if (!lettersFreq[letter] || wordFreq[letter] > lettersFreq[letter]) return false;
+      }
+      return true;
+    }
+
+    function updateCounts() {
+      const letters = sanitizeLetters(textarea.value);
+      charCount.textContent = letters.length;
+      lettersStat.textContent = letters.length;
+    }
+
+    function setStatus(message, ready = false) {
+      status.classList.toggle('ready', ready);
+      status.innerHTML = '<span class="status-dot" aria-hidden="true"></span><span>' + message + '</span>';
+    }
+
+    function renderEmpty(message) {
+      metaLine.hidden = true;
+      resultsStat.textContent = '0';
+      longestStat.textContent = '—';
+      resultsContent.className = 'flash';
+      resultsContent.innerHTML = `
+        <div class="empty-state">
+          <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+            <path d="M12 3v18M3 12h18"></path>
+          </svg>
+          <p>${message}</p>
+        </div>
+      `;
+    }
+
+    function renderResults(words) {
+      const uniqueLengths = new Set(words.map(word => word.length)).size;
+      const longest = words[0] || '—';
+      const bestScore = words.length ? Math.max(...words.map(scrabbleScore)) : 0;
+      metaLine.hidden = false;
+      totalPill.textContent = `${words.length} words`;
+      lengthPill.textContent = `${uniqueLengths} unique lengths`;
+      scorePill.textContent = `${bestScore} top score`;
+      resultsStat.textContent = words.length;
+      longestStat.textContent = longest;
+      resultsContent.className = 'flash';
+      resultsContent.innerHTML = `<div class="word-grid">${words.map(word => `<div class="word-chip"><strong>${word}</strong><div style="font-size:12px;color:var(--color-text-muted);margin-top:4px;">${scrabbleScore(word)} pts</div></div>`).join('')}</div>`;
+    }
+
+    function scrabbleScore(word) {
+      const scores = {a:1,b:3,c:3,d:2,e:1,f:4,g:2,h:4,i:1,j:8,k:5,l:1,m:3,n:1,o:1,p:3,q:10,r:1,s:1,t:1,u:1,v:4,w:4,x:8,y:4,z:10};
+      return word.split('').reduce((a,c)=>a+(scores[c]||0),0);
+    }
+
+    function parsePattern(pattern) {
+      const raw = (pattern || '').trim().toLowerCase();
+      if (!raw) return { wildcard: '', start: '', end: '', contains: '', not: '', exact: '' };
+      const parts = raw.split(',').map(v => v.trim()).filter(Boolean);
+      const out = { wildcard: '', start: '', end: '', contains: '', not: '', exact: '' };
+      for (const part of parts) {
+        if (part.startsWith('start:')) out.start = part.slice(6).trim().replace(/[^a-z?]/g, '');
+        else if (part.startsWith('end:')) out.end = part.slice(4).trim().replace(/[^a-z?]/g, '');
+        else if (part.startsWith('contains:')) out.contains = part.slice(9).trim().replace(/[^a-z?]/g, '');
+        else if (part.startsWith('not:')) out.not = part.slice(4).trim().replace(/[^a-z?]/g, '');
+        else if (part.startsWith('exact:')) out.exact = part.slice(6).trim().replace(/[^a-z?]/g, '');
+        else out.wildcard = part.replace(/\s+/g, '').replace(/[^a-z?]/g, '');
+      }
+      return out;
+    }
+
+    function patternMatch(word, pattern) {
+      if (pattern.exact && word !== pattern.exact) return false;
+      if (pattern.start && !word.startsWith(pattern.start)) return false;
+      if (pattern.end && !word.endsWith(pattern.end)) return false;
+      if (pattern.contains && !word.includes(pattern.contains)) return false;
+      if (pattern.not && word.includes(pattern.not)) return false;
+      if (pattern.wildcard) {
+        if (pattern.wildcard.length !== word.length) return false;
+        for (let i = 0; i < pattern.wildcard.length; i++) {
+          const p = pattern.wildcard[i];
+          if (p !== '?' && p !== word[i]) return false;
+        }
+      }
+      return true;
+    }
+
+    function findWords(letters, patternText = '') {
+      const lettersFreq = frequencyMap(letters);
+      const pattern = parsePattern(patternText);
+      return preparedDictionary
+        .filter(entry => entry.word.length <= letters.length && canBuild(entry.freq, lettersFreq) && patternMatch(entry.word, pattern))
+        .map(entry => entry.word);
+    }
+
+    function findPairs(letters) {
+      const words = findWords(letters);
+      const letterCounts = frequencyMap(letters);
+      const pairs = [];
+      for (let i = 0; i < words.length; i++) {
+        const a = words[i];
+        for (let j = i; j < words.length; j++) {
+          const b = words[j];
+          const combined = a + b;
+          if (combined.length > letters.length) continue;
+          const freq = frequencyMap(combined);
+          if (canBuild(freq, letterCounts)) pairs.push(`${a} + ${b}`);
+        }
+      }
+      return pairs.slice(0, 100);
+    }
+
+    function exportCsv(words) {
+      const rows = ['word,score,length'];
+      words.forEach(w => rows.push(`${w},${scrabbleScore(w)},${w.length}`));
+      const blob = new Blob([rows.join('
+')], {type:'text/csv'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'word-unscrambler-results.csv'; a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const letters = sanitizeLetters(textarea.value);
+      const pattern = (patternInput.value || '').trim();
+      textarea.value = letters;
+      updateCounts();
+    scorePill.textContent = '0 top score';
+    modePill.textContent = 'all words';
+
+      if (!letters) {
+        setStatus('Add letters to begin.');
+        renderEmpty('Please enter at least one letter before generating words.');
+        return;
+      }
+
+      setStatus('Searching for valid words…');
+      const words = findWords(letters, pattern);
+
+      if (!words.length) {
+        setStatus('No matches found for this set.', false);
+        renderEmpty('No dictionary words could be formed from this letter set. Try a different combination or loosen the filter.');
+        return;
+      }
+
+      setStatus(`Found ${words.length} valid words.`, true);
+      renderResults(words);
+      modePill.textContent = pattern ? 'filtered' : 'all words';
+      scorePill.textContent = `${Math.max(...words.map(w => w.length))} max length`;
+    });
+
+    clearBtn.addEventListener('click', () => {
+      textarea.value = '';
+      patternInput.value = '';
+      updateCounts();
+    scorePill.textContent = '0 top score';
+    modePill.textContent = 'all words';
+      setStatus('Waiting for letters.');
+      scorePill.textContent = '0 top score';
+    modePill.textContent = 'all words';
+      renderEmpty('Enter a group of letters and press <strong>Unscramble</strong> to see every valid match.');
+    });
+
+    sampleBtn.addEventListener('click', () => {
+      textarea.value = 'stream';
+      patternInput.value = '';
+      updateCounts();
+    scorePill.textContent = '0 top score';
+    modePill.textContent = 'all words';
+      form.requestSubmit();
+    });
+
+    textarea.addEventListener('input', updateCounts);
+    patternInput.addEventListener('input', () => {
+      if (patternInput.value.length === 0) scorePill.textContent = '0 top score';
+    });
+    copyBtn.addEventListener('click', async () => {
+      const words = Array.from(document.querySelectorAll('.word-chip strong')).map(el => el.textContent.trim()).filter(Boolean);
+      if (!words.length) { setStatus('Nothing to copy yet.'); return; }
+      await navigator.clipboard.writeText(words.join(', '));
+      setStatus('Results copied to clipboard.', true);
+    });
+
+    exportBtn.addEventListener('click', () => {
+      const words = Array.from(document.querySelectorAll('.word-chip strong')).map(el => el.textContent.trim()).filter(Boolean);
+      if (!words.length) { setStatus('Nothing to export yet.'); return; }
+      exportCsv(words);
+      setStatus('CSV export downloaded.', true);
+    });
+
+    (function () {
+      let theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      root.setAttribute('data-theme', theme);
+      const sun = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5"></circle><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"></path></svg>';
+      const moon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>';
+      const syncIcon = () => {
+        themeToggle.innerHTML = theme === 'dark' ? sun : moon;
+        themeToggle.setAttribute('aria-label', 'Switch to ' + (theme === 'dark' ? 'light' : 'dark') + ' mode');
+      };
+      syncIcon();
+      themeToggle.addEventListener('click', () => {
+        theme = theme === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', theme);
+        syncIcon();
+      });
+    })();
+
+    updateCounts();
+    scorePill.textContent = '0 top score';
+    modePill.textContent = 'all words';
+  </script>
+</body>
+</html>
